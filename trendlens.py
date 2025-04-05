@@ -187,6 +187,27 @@ df_slang.to_csv('slang_terms.csv', index=False)
 ###Top Slang by Frequency
 """
 
+#df = pd.read_csv("https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv")
+
+'''# Load the dataset and handle potential encoding issues
+# Define the URL for the dataset (hosted on GitHub)
+url = 'https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv'
+
+# Fetch the dataset from the URL
+response = requests.get(url)
+
+if response.status_code == 200:
+    try:
+        # Use 'on_bad_lines' to handle problematic rows
+        df_slangs = pd.read_csv(BytesIO(response.content), encoding='ISO-8859-1', on_bad_lines='skip')
+        print("Dataset successfully loaded.")
+        print(df_reddit.head())
+    except Exception as e:
+        print(f"Error loading dataset: {e}")
+else:
+    print(f"Failed to retrieve the file. Status code: {response.status_code}")
+    '''
+
 import matplotlib.pyplot as plt
 
 top_n = 15
@@ -219,7 +240,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # Load default dataset
-df = pd.read_csv("slang_terms.csv")
+df = pd.read_csv("https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv")
 
 # Optional: Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
