@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1Dr4g017qPCxnNn2IV8YvB7-Gq03KViRE
 """
 
-pip install praw
+#pip install praw
 
 import praw #Python Reddit API Wrapper
 import pandas as pd
@@ -251,7 +251,7 @@ plt.axis('off')
 plt.title('Slang Word Cloud')
 plt.show()
 
-pip install streamlit
+#pip install streamlit
 
 import streamlit as st
 import pandas as pd
@@ -301,4 +301,4 @@ if df_upload:
     df = pd.read_csv(df_upload)
     st.success("Uploaded new dataset! Reload the app to see updates.")
 
-pip install streamlit wordcloud matplotlib
+#pip install streamlit wordcloud matplotlib
