@@ -4,3 +4,4 @@ matplotlib
 wordcloud
 praw
 nltk
+scikit-learn
