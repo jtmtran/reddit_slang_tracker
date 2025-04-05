@@ -218,16 +218,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
-# Load slang data (replace with your actual path or use uploaded file)
+# Load default dataset
 df = pd.read_csv("slang_terms.csv")
 
-# Sidebar: Filter terms
+# Optional: Upload your own CSV
+df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
+if df_upload:
+    df = pd.read_csv(df_upload)
+    st.success("Uploaded new dataset!")
+
+# Filter settings
 st.sidebar.title("Filter Options")
 min_freq = st.sidebar.slider("Minimum frequency", 1, int(df['frequency'].max()), 5)
 top_n = st.sidebar.slider("Top N slang terms to display", 5, 50, 15)
 
+# Apply filtering AFTER upload
 filtered_df = df[df['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
+# Display title
 st.title("🗣️ Reddit Slang Trend Dashboard")
 st.markdown("See what's trending, what it means, and how often it's used.")
 
@@ -237,36 +245,26 @@ fig, ax = plt.subplots(figsize=(10, 6))
 ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
 ax.set_xlabel("Frequency")
 ax.set_ylabel("Term")
-ax.set_title("Trending Slang Terms")
 st.pyplot(fig)
 
-# Word Cloud
+# Word cloud
 st.subheader("Slang Word Cloud")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
 st.image(wordcloud.to_array(), use_column_width=True)
 
-# Definitions Table
+# Definitions
 st.subheader("Definitions")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
 
 if not def_row.empty:
-    st.markdown(f"**{selected_term}**")
-
     definition = def_row['definition_display'].values[0]
 
-    # Safely check if the definition is valid
     if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip() != "":
-      defs = definition.split('\n')
-      for d in defs:
-          st.markdown(f"• {d.strip()}")
+        defs = definition.split('\n')
+        for d in defs:
+            st.markdown(f"• {d.strip()}")
     else:
-      st.warning("No definition available for this term.")
-
-# Optional: Upload your own CSV
-df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
-if df_upload:
-    df = pd.read_csv(df_upload)
-    st.success("Uploaded new dataset! Reload the app to see updates.")
+        st.warning("No definition available for this term.")
 
 #pip install streamlit wordcloud matplotlib
