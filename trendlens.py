@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1Dr4g017qPCxnNn2IV8YvB7-Gq03KViRE
 """
 
-!pip install praw
+pip install praw
 
 import praw #Python Reddit API Wrapper
 import pandas as pd
@@ -106,53 +106,6 @@ df_reddit
 
 """##Get Top Trending Words"""
 
-#vectorizer = CountVectorizer(stop_words='english')
-vectorizer = CountVectorizer(ngram_range=(2, 2), max_features=200)
-X = vectorizer.fit_transform(df_reddit['clean_text'])
-word_freq = X.toarray().sum(axis=0)
-
-#Create trending word DataFrame
-trend_df = pd.DataFrame({'term': vectorizer.get_feature_names_out(),
-                         'frequency': word_freq})
-trend_df = trend_df.sort_values(by='frequency', ascending=False)
-trend_df.head(50)
-
-from sklearn.feature_extraction.text import CountVectorizer
-import pandas as pd
-
-# Unigrams and bigrams, up to 1000 terms
-vectorizer = CountVectorizer(ngram_range=(1, 2), max_features=1000)
-X = vectorizer.fit_transform(df_reddit['clean_text'])
-
-# Get frequencies
-word_freq = X.toarray().sum(axis=0)
-
-# Build term-frequency DataFrame
-term_list = vectorizer.get_feature_names_out()
-trend_df = pd.DataFrame({'term': term_list, 'frequency': word_freq})
-trend_df = trend_df.sort_values(by='frequency', ascending=False).reset_index(drop=True)
-
-trend_df.head(20)
-
-"""##Draft"""
-
-from sklearn.feature_extraction.text import CountVectorizer
-import pandas as pd
-
-# Unigrams and bigrams, up to 1000 terms
-vectorizer = CountVectorizer(ngram_range=(1, 2), max_features=1000)
-X = vectorizer.fit_transform(df_reddit['clean_text'])
-
-# Get frequencies
-word_freq = X.toarray().sum(axis=0)
-
-# Build term-frequency DataFrame
-term_list = vectorizer.get_feature_names_out()
-trend_df = pd.DataFrame({'term': term_list, 'frequency': word_freq})
-trend_df = trend_df.sort_values(by='frequency', ascending=False).reset_index(drop=True)
-
-trend_df.head(20)
-
 def get_urban_definitions(term, max_defs=3):
     try:
         url = f"https://www.urbandictionary.com/define.php?term={term.replace(' ', '%20')}"
@@ -183,33 +136,6 @@ def get_urban_definitions(term, max_defs=3):
         print(f"Error getting definitions for '{term}': {e}")
         return None
         '''
-
-top_terms = trend_df.head(100).copy()
-top_terms['urban_definition'] = top_terms['term'].apply(get_urban_definition)
-slang_df = top_terms[top_terms['urban_definition'].notnull()].reset_index(drop=True)
-
-slang_df[['term', 'frequency', 'urban_definition']].head(10)
-
-extra_common_words = {
-    'like', 'would', 'one', 'get', 'got', 'just', 'dont', 'didnt', 'time', 'people',
-    'make', 'want', 'know', 'said', 'says', 'told', 'even', 'thing', 'things',
-    'think', 'really', 'feel', 'day', 'way', 'back', 'still', 'life', 'ive', 'shes',
-    'whats', 'went', 'good', 'bad', 'mom', 'dad', 'friend', 'friends', 'school',
-    'years', 'old', 'home', 'every', 'something', 'always', 'never', 'also', 'new',
-    'lot', 'mean', 'doesnt', 'see', 'look', 'come', 'going', 'since', 'work', 'could',
-    'decided', 'next', 'group', 'stop', 'aita', 'asked', 'house', 'say', 'saying'
-}
-
-# Filter terms
-filtered_df = trend_df[~trend_df['term'].isin(extra_common_words)].reset_index(drop=True)
-
-top_terms = filtered_df.head(100).copy()
-top_terms['urban_definition'] = top_terms['term'].apply(get_urban_definition)
-slang_df = top_terms[top_terms['urban_definition'].notnull()].reset_index(drop=True)
-
-slang_df
-
-"""##Draft 3"""
 
 slang_phrases = [
     'could of', 'would of', 'no cap', 'rizz', 'delulu',
@@ -325,7 +251,7 @@ plt.axis('off')
 plt.title('Slang Word Cloud')
 plt.show()
 
-!pip install streamlit
+pip install streamlit
 
 import streamlit as st
 import pandas as pd
@@ -375,4 +301,4 @@ if df_upload:
     df = pd.read_csv(df_upload)
     st.success("Uploaded new dataset! Reload the app to see updates.")
 
-!pip install streamlit wordcloud matplotlib
+pip install streamlit wordcloud matplotlib
