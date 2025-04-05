@@ -121,22 +121,6 @@ def get_urban_definitions(term, max_defs=3):
         print(f"Error for term '{term}': {e}")
         return None
 
-'''def get(term, max_defs=3):
-    try:
-        url = f"https://www.urbandictionary.com/define.php?term={term.replace(' ', '%20')}"
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        res = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(res.text, 'html.parser')
-
-        definitions = soup.find_all('div', class_='meaning')
-        if not definitions:
-            return None
-        return [d.text.strip() for d in definitions[:max_defs]]
-    except Exception as e:
-        print(f"Error getting definitions for '{term}': {e}")
-        return None
-        '''
-
 slang_phrases = [
     'could of', 'would of', 'no cap', 'rizz', 'delulu',
     'main character', 'goofy ahh', 'caught in 4k', 'sigma male',
@@ -184,31 +168,9 @@ get_urban_definitions("sus")
 
 df_slang.to_csv('slang_terms.csv', index=False)
 
-"""##Look Up Terms In Urban Dictionary"""
+"""##Look Up Terms In Urban Dictionary
 
-from bs4 import BeautifulSoup
-import requests
-
-def get_urban_definition(term):
-    url = f"https://www.urbandictionary.com/define.php?term={term.replace(' ', '%20')}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.11} Safari/537.3"
-    }
-    res = requests.get(url, headers=headers)
-    soup = BeautifulSoup(res.text, 'html.parser')
-
-    meaning = soup.find('div', {'class': 'meaning'})
-    if meaning:
-        return meaning.text.strip()
-    else:
-        return "Meaning not found"
-
-#Try it on top 5 trending words
-for term in trend_df['term'].head():
-    definition = get_urban_definition(term)
-    print(f"Term: {term}\nDefinition: {definition}\n")
-
-"""👑 Optional Next:
+👑 Optional Next:
 	•	Highlight words only trending in r/teenagers vs. other subs
 	•	Add sentiment analysis
 	•	Build the Streamlit dashboard
