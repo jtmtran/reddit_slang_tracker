@@ -102,8 +102,6 @@ def clean_text(text):
 
 df_reddit['clean_text'] = df_reddit['text'].fillna('').apply(clean_text)
 
-df_reddit
-
 """##Get Top Trending Words"""
 
 def get_urban_definitions(term, max_defs=3):
@@ -257,13 +255,13 @@ if not def_row.empty:
 
     definition = def_row['definition_display'].values[0]
 
-    # Safely handle missing definitions (NaN)
-    if pd.notna(definition):
-        defs = definition.split('\n')
-        for d in defs:
-            st.markdown(f"• {d.strip()}")
+    # Safely check if the definition is valid
+    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip() != "":
+      defs = definition.split('\n')
+      for d in defs:
+          st.markdown(f"• {d.strip()}")
     else:
-        st.warning("No definition available for this term.")
+      st.warning("No definition available for this term.")
 
 # Optional: Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
