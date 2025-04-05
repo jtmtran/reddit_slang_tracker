@@ -251,11 +251,19 @@ st.image(wordcloud.to_array(), use_column_width=True)
 st.subheader("Definitions")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
+
 if not def_row.empty:
     st.markdown(f"**{selected_term}**")
-    defs = def_row['definition_display'].values[0].split('\n')
-    for d in defs:
-        st.markdown(d)
+
+    definition = def_row['definition_display'].values[0]
+
+    # Safely handle missing definitions (NaN)
+    if pd.notna(definition):
+        defs = definition.split('\n')
+        for d in defs:
+            st.markdown(f"• {d.strip()}")
+    else:
+        st.warning("No definition available for this term.")
 
 # Optional: Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
