@@ -5,3 +5,4 @@ wordcloud
 praw
 nltk
 scikit-learn
+BeautifulSoup
