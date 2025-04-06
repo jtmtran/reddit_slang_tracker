@@ -227,7 +227,8 @@ text = ' '.join(df_slang['term'].values)
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
 
 plt.figure(figsize=(12, 6))
-plt.imshow(wordcloud, interpolation='bilinear')
+#plt.imshow(wordcloud, interpolation='bilinear')
+plt.imshow(wordcloud.to_array(), interpolation='bilinear')
 plt.axis('off')
 plt.title('Slang Word Cloud')
 plt.show()
@@ -270,10 +271,14 @@ ax.set_xlabel("Frequency")
 ax.set_ylabel("Term")
 st.pyplot(fig)
 
-# Word cloud
+# Word Cloud
 st.subheader("Slang Word Cloud")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
-st.image(wordcloud.to_array(), use_column_width=True)
+
+fig_wc, ax_wc = plt.subplots(figsize=(12, 6))
+ax_wc.imshow(wordcloud.to_array(), interpolation='bilinear')
+ax_wc.axis('off')
+st.pyplot(fig_wc)
 
 # Definitions
 st.subheader("Definitions")
