@@ -243,6 +243,14 @@ from wordcloud import WordCloud
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
 
+st.markdown(
+    "<a href='https://github.com/jtmtran/reddit_trending_realtime' target='_blank'>"
+    "<img style='position: absolute; top: 0; right: 0; border: 0;' "
+    "src='https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=149%2C149' "
+    "alt='Fork me on GitHub'>"
+    "</a>",
+    unsafe_allow_html=True
+)
 '''
 # Optional: Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
@@ -252,19 +260,27 @@ if df_upload:
 '''
 
 # Filter settings
-st.sidebar.title("Filter Options")
+st.sidebar.title("⚙️ Controls")
+st.sidebar.markdown("Filter how many terms to show or upload your own slang CSV.")
 min_freq = st.sidebar.slider("Minimum frequency", 1, int(df['frequency'].max()), 5)
 top_n = st.sidebar.slider("Top N slang terms to display", 5, 50, 15)
+st.sidebar.caption("Adjust the sliders to explore more or less frequent slang.")
 
 # Apply filtering AFTER upload
 filtered_df = df[df['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
 # Display title
-st.title("🗣️ Reddit Slang Trend Dashboard")
-st.markdown("See what's trending, what it means, and how often it's used.")
+st.title("🧠 TrendLens: Real-Time Slang Radar")
+st.markdown(
+    """
+    👋 Welcome to **TrendLens**, a live dashboard that scrapes Reddit posts to track trending slang.
+    🗣 Built for Gen Z, linguists, and trend-watchers.
+    🔍 Explore, define, and visualize how slang moves through the internet — in real time.
+    """
+)
 
 # Bar chart
-st.subheader("Top Slang Terms by Frequency")
+st.subheader("📊 Most Popular Slang Terms")
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
 ax.set_xlabel("Frequency")
@@ -272,7 +288,7 @@ ax.set_ylabel("Term")
 st.pyplot(fig)
 
 # Word Cloud
-st.subheader("Slang Word Cloud")
+st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
 
 fig_wc, ax_wc = plt.subplots(figsize=(12, 6))
@@ -281,18 +297,44 @@ ax_wc.axis('off')
 st.pyplot(fig_wc)
 
 # Definitions
-st.subheader("Definitions")
+st.subheader("📖 Slang Definitions + Urban Dictionary")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
 
 if not def_row.empty:
+  try:
+    definition = def_row['definition_display'].values[0]
+    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
+        defs = definition.split('\n')
+        for i, d in enumerate(defs, 1):
+            st.markdown(f"**Definition {i}:**")
+            st.info(d.strip())
+        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
+    else:
+        st.warning("No definition available for this term.")
+
+  except Exception as e:
+    st.error(f"Oops — something went wrong loading the definition: {e}")
+
+  '''
     definition = def_row['definition_display'].values[0]
 
     if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip() != "":
         defs = definition.split('\n')
-        for d in defs:
+        '''for d in defs:
             st.markdown(f"• {d.strip()}")
+            '''
+        for i, d in enumerate(defs, 1):
+          st.markdown(f"**Definition {i}:**")
+          st.info(d.strip())
+
+        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
+
     else:
         st.warning("No definition available for this term.")
+
+'''
+st.markdown("---")
+st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
 
 #pip install streamlit wordcloud matplotlib
