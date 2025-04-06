@@ -138,6 +138,8 @@ for phrase in slang_phrases:
 df_slang = pd.DataFrame(phrase_counts.items(), columns=['term', 'frequency'])
 df_slang = df_slang[df_slang['frequency'] > 0].sort_values(by='frequency', ascending=False).reset_index(drop=True)
 
+"""##Look Up Terms In Urban Dictionary"""
+
 df_slang['urban_definition'] = df_slang['term'].apply(get_urban_definitions)
 
 def format_definitions(defs):
@@ -166,47 +168,12 @@ get_urban_definitions("sus")
 
 df_slang.to_csv('slang_terms.csv', index=False)
 
-"""##Look Up Terms In Urban Dictionary
-
-👑 Optional Next:
-	•	Highlight words only trending in r/teenagers vs. other subs
-	•	Add sentiment analysis
-	•	Build the Streamlit dashboard
-	•	Add a button to “explain this slang”
-
-  Let me know what direction you’re vibing with next:
-🔍 deep dive into slang trends?
-📊 visualize it?
-🧠 auto-detect if something’s “TikTok slang”?
-"""
-
-
-
 """##Visualizations
 
 ###Top Slang by Frequency
 """
 
 #df = pd.read_csv("https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv")
-
-'''# Load the dataset and handle potential encoding issues
-# Define the URL for the dataset (hosted on GitHub)
-url = 'https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv'
-
-# Fetch the dataset from the URL
-response = requests.get(url)
-
-if response.status_code == 200:
-    try:
-        # Use 'on_bad_lines' to handle problematic rows
-        df_slangs = pd.read_csv(BytesIO(response.content), encoding='ISO-8859-1', on_bad_lines='skip')
-        print("Dataset successfully loaded.")
-        print(df_reddit.head())
-    except Exception as e:
-        print(f"Error loading dataset: {e}")
-else:
-    print(f"Failed to retrieve the file. Status code: {response.status_code}")
-    '''
 
 import matplotlib.pyplot as plt
 
@@ -316,24 +283,6 @@ if not def_row.empty:
   except Exception as e:
     st.error(f"Oops — something went wrong loading the definition: {e}")
 
-  '''
-    definition = def_row['definition_display'].values[0]
-
-    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip() != "":
-        defs = definition.split('\n')
-        '''for d in defs:
-            st.markdown(f"• {d.strip()}")
-            '''
-        for i, d in enumerate(defs, 1):
-          st.markdown(f"**Definition {i}:**")
-          st.info(d.strip())
-
-        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
-
-    else:
-        st.warning("No definition available for this term.")
-
-'''
 st.markdown("---")
 st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
 
