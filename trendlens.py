@@ -207,6 +207,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
+# REMOVE this:
+##Clean Text + Extract Trending Words
+###Clean Text
+##Get Top Trending Words
+##Look Up Terms In Urban Dictionary
+##Visualizations
+###Top Slang by Frequency
+###Word Cloud
+
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
 
@@ -218,13 +227,13 @@ st.markdown(
     "</a>",
     unsafe_allow_html=True
 )
-'''
-# Optional: Upload your own CSV
+
+#Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
 if df_upload:
     df = pd.read_csv(df_upload)
     st.success("Uploaded new dataset!")
-'''
+
 
 # Filter settings
 st.sidebar.title("⚙️ Controls")
@@ -239,15 +248,14 @@ filtered_df = df[df['frequency'] >= min_freq].sort_values(by='frequency', ascend
 # Display title
 st.title("🧠 TrendLens: Real-Time Slang Radar")
 st.markdown(
-    """
-    👋 Welcome to **TrendLens**, a live dashboard that scrapes Reddit posts to track trending slang.
-    🗣 Built for Gen Z, linguists, and trend-watchers.
-    🔍 Explore, define, and visualize how slang moves through the internet — in real time.
-    """
+    "👋 Welcome to **TrendLens**, a live dashboard that scrapes Reddit posts to track trending slang.  \n"
+    "🗣 Built for Gen Z, linguists, and trend-watchers.  \n"
+    "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
+st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
 ax.set_xlabel("Frequency")
@@ -257,7 +265,7 @@ st.pyplot(fig)
 # Word Cloud
 st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
-
+st.image(wordcloud.to_array(), use_column_width=True)
 fig_wc, ax_wc = plt.subplots(figsize=(12, 6))
 ax_wc.imshow(wordcloud.to_array(), interpolation='bilinear')
 ax_wc.axis('off')
