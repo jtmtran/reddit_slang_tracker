@@ -240,13 +240,15 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # Load default dataset
-df = pd.read_csv("https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
 
+'''
 # Optional: Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
 if df_upload:
     df = pd.read_csv(df_upload)
     st.success("Uploaded new dataset!")
+'''
 
 # Filter settings
 st.sidebar.title("Filter Options")
