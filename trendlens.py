@@ -207,14 +207,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
-# REMOVE this:
-##Clean Text + Extract Trending Words
-###Clean Text
-##Get Top Trending Words
-##Look Up Terms In Urban Dictionary
-##Visualizations
-###Top Slang by Frequency
-###Word Cloud
+from IPython.display import Markdown, display
+
+def md(text):
+    display(Markdown(text))
+
+if not IN_STREAMLIT:
+    md("## Clean Text + Extract Trending Words")
+    md("### Clean Text")
 
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
@@ -227,12 +227,6 @@ st.markdown(
     "</a>",
     unsafe_allow_html=True
 )
-
-#Upload your own CSV
-df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
-if df_upload:
-    df = pd.read_csv(df_upload)
-    st.success("Uploaded new dataset!")
 
 
 # Filter settings
@@ -265,9 +259,9 @@ st.pyplot(fig)
 # Word Cloud
 st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
-st.image(wordcloud.to_array(), use_column_width=True)
+st.image(wordcloud.to_array(), use_container_width=True)
 fig_wc, ax_wc = plt.subplots(figsize=(12, 6))
-ax_wc.imshow(wordcloud.to_array(), interpolation='bilinear')
+#ax_wc.imshow(wordcloud.to_array(), interpolation='bilinear')
 ax_wc.axis('off')
 st.pyplot(fig_wc)
 
@@ -290,6 +284,12 @@ if not def_row.empty:
 
   except Exception as e:
     st.error(f"Oops — something went wrong loading the definition: {e}")
+
+#Upload your own CSV
+df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
+if df_upload:
+    df = pd.read_csv(df_upload)
+    st.success("Uploaded new dataset!")
 
 st.markdown("---")
 st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
