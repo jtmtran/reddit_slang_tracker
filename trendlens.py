@@ -10,11 +10,18 @@ Original file is located at
 import sys
 IN_STREAMLIT = "streamlit" in sys.argv[0]
 
-if not IN_STREAMLIT:
-    from IPython.display import Markdown, display
+try:
+    if not IN_STREAMLIT:
+        from IPython.display import Markdown, display
 
+        def md(text):
+            display(Markdown(text))
+    else:
+        def md(text):
+            pass
+except ModuleNotFoundError:
     def md(text):
-        display(Markdown(text))
+        pass
 
 #pip install praw
 
