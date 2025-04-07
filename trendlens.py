@@ -87,11 +87,6 @@ else:
 
 df_reddit.head()
 
-"""##Clean Text + Extract Trending Words
-
-###Clean Text
-"""
-
 if not IN_STREAMLIT:
     md("## Clean Text + Extract Trending Words")
     md("### Clean Text")
@@ -124,8 +119,6 @@ def clean_text(text):
     return ' '.join(tokens)
 
 df_reddit['clean_text'] = df_reddit['text'].fillna('').apply(clean_text)
-
-"""##Get Top Trending Words"""
 
 if not IN_STREAMLIT:
     md("##Get Top Trending Words")
@@ -164,8 +157,6 @@ for phrase in slang_phrases:
 df_slang = pd.DataFrame(phrase_counts.items(), columns=['term', 'frequency'])
 df_slang = df_slang[df_slang['frequency'] > 0].sort_values(by='frequency', ascending=False).reset_index(drop=True)
 
-"""##Look Up Terms In Urban Dictionary"""
-
 if not IN_STREAMLIT:
     md("##Look Up Terms In Urban Dictionary")
 
@@ -198,11 +189,6 @@ get_urban_definitions("sus")
 
 df_slang.to_csv('slang_terms.csv', index=False)
 
-"""##Visualizations
-
-###Top Slang by Frequency
-"""
-
 if not IN_STREAMLIT:
     md("##Visualizations")
     md("###Top Slang by Frequency")
@@ -219,8 +205,6 @@ plt.xlabel('Frequency')
 plt.ylabel('Slang Term')
 plt.tight_layout()
 plt.show()
-
-"""###Word Cloud"""
 
 if not IN_STREAMLIT:
     md("###Word Cloud")
