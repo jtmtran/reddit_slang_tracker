@@ -55,9 +55,11 @@ for sub in subreddits:
 
 #Create a Dataframe
 df_reddit = pd.DataFrame(posts_data)
-df_reddit.head()
+if not IN_STREAMLIT:
+    print(df_reddit.head())
 
-df_reddit.shape
+if not IN_STREAMLIT:
+    print(df_reddit.shape)
 
 df_reddit.to_csv('reddit_trending_posts.csv', index=False)
 
@@ -107,7 +109,8 @@ nltk.download('wordnet')
 #Combine title and selftext to capture the full thought, not just a piece of it.
 df_reddit['text'] = df_reddit['title'].fillna('') + ' ' + df_reddit['selftext'].fillna('')
 
-df_reddit
+if not IN_STREAMLIT:
+    print(df_reddit.head())
 
 #Cleaner
 def clean_text(text):
@@ -177,7 +180,8 @@ df_slang['definition_display'] = df_slang['urban_definition'].apply(format_defin
 
 df_slang['urban_definition'].apply(type).value_counts()
 
-df_slang
+if not IN_STREAMLIT:
+    print(df_slang.head())
 
 def clean_text(text):
     return text.replace('\r', '').replace('\n', ' ').strip()
@@ -217,6 +221,9 @@ plt.tight_layout()
 plt.show()
 
 """###Word Cloud"""
+
+if not IN_STREAMLIT:
+    md("###Word Cloud")
 
 from wordcloud import WordCloud
 
@@ -281,10 +288,6 @@ st.pyplot(fig)
 st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
 st.image(wordcloud.to_array(), use_container_width=True)
-fig_wc, ax_wc = plt.subplots(figsize=(12, 6))
-#ax_wc.imshow(wordcloud.to_array(), interpolation='bilinear')
-ax_wc.axis('off')
-st.pyplot(fig_wc)
 
 # Definitions
 st.subheader("📖 Slang Definitions + Urban Dictionary")
