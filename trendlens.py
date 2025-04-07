@@ -259,6 +259,21 @@ st.markdown(
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
+[theme]
+base="dark"
+primaryColor="#FF4B4B"
+backgroundColor="#0e1117"
+secondaryBackgroundColor="#262730"
+textColor="#FAFAFA"
+font="sans serif"
+
+col1, col2 = st.columns(2)
+col1.metric("Unique Slang Terms", len(df['term'].unique()))
+col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
+
+# Line chart
+st.line_chart(df.groupby('date')['term'].count())
+
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
@@ -272,6 +287,17 @@ st.pyplot(fig)
 st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
 st.image(wordcloud.to_array(), use_container_width=True)
+
+if st.checkbox("🔍 Show Raw Reddit Posts"):
+    st.dataframe(df_reddit[['subreddit', 'title', 'score']])
+
+with st.sidebar.expander("ℹ️ About this project"):
+    st.markdown("""
+    **TrendLens** is a real-time slang tracking app powered by Reddit + Urban Dictionary.
+
+    Created by [Jennie Tran](https://github.com/jtmtran)
+    Built with: Python • Streamlit • NLP
+    """)
 
 # Definitions
 st.subheader("📖 Slang Definitions + Urban Dictionary")
@@ -293,6 +319,10 @@ if not def_row.empty:
   except Exception as e:
     st.error(f"Oops — something went wrong loading the definition: {e}")
 
+st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
+
+#pip install streamlit wordcloud matplotlib
+
 #Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
 if df_upload:
@@ -301,5 +331,3 @@ if df_upload:
 
 st.markdown("---")
 st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
-
-#pip install streamlit wordcloud matplotlib
