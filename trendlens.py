@@ -19,6 +19,15 @@ reddit = praw.Reddit(client_id='lG4XBdXQZAoNiIXezvgwLg',
                      username='Available_News_2450',
                      password='Minhhoa12@')
 
+import sys
+IN_STREAMLIT = "streamlit" in sys.argv[0]
+
+if not IN_STREAMLIT:
+    from IPython.display import Markdown, display
+
+    def md(text):
+        display(Markdown(text))
+
 #Pick the subreddits
 subreddits = ['GenZ', 'AskReddit', 'funny', 'worldnews','amitheasshole']
 limit = 1000 #number of posts per subreddit
@@ -74,6 +83,10 @@ df_reddit.head()
 ###Clean Text
 """
 
+if not IN_STREAMLIT:
+    md("## Clean Text + Extract Trending Words")
+    md("### Clean Text")
+
 import re
 import nltk
 from nltk.corpus import stopwords
@@ -103,6 +116,9 @@ def clean_text(text):
 df_reddit['clean_text'] = df_reddit['text'].fillna('').apply(clean_text)
 
 """##Get Top Trending Words"""
+
+if not IN_STREAMLIT:
+    md("##Get Top Trending Words")
 
 def get_urban_definitions(term, max_defs=3):
     try:
@@ -140,6 +156,9 @@ df_slang = df_slang[df_slang['frequency'] > 0].sort_values(by='frequency', ascen
 
 """##Look Up Terms In Urban Dictionary"""
 
+if not IN_STREAMLIT:
+    md("##Look Up Terms In Urban Dictionary")
+
 df_slang['urban_definition'] = df_slang['term'].apply(get_urban_definitions)
 
 def format_definitions(defs):
@@ -172,6 +191,10 @@ df_slang.to_csv('slang_terms.csv', index=False)
 
 ###Top Slang by Frequency
 """
+
+if not IN_STREAMLIT:
+    md("##Visualizations")
+    md("###Top Slang by Frequency")
 
 #df = pd.read_csv("https://github.com/jtmtran/reddit_trending_realtime/raw/refs/heads/main/slang_terms.csv")
 
@@ -206,15 +229,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-
-from IPython.display import Markdown, display
-
-def md(text):
-    display(Markdown(text))
-
-if not IN_STREAMLIT:
-    md("## Clean Text + Extract Trending Words")
-    md("### Clean Text")
 
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
