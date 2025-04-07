@@ -7,6 +7,15 @@ Original file is located at
     https://colab.research.google.com/drive/1Dr4g017qPCxnNn2IV8YvB7-Gq03KViRE
 """
 
+import sys
+IN_STREAMLIT = "streamlit" in sys.argv[0]
+
+if not IN_STREAMLIT:
+    from IPython.display import Markdown, display
+
+    def md(text):
+        display(Markdown(text))
+
 #pip install praw
 
 import praw #Python Reddit API Wrapper
@@ -18,15 +27,6 @@ reddit = praw.Reddit(client_id='lG4XBdXQZAoNiIXezvgwLg',
                      user_agent='trendlens-test-v1',
                      username='Available_News_2450',
                      password='Minhhoa12@')
-
-import sys
-IN_STREAMLIT = "streamlit" in sys.argv[0]
-
-if not IN_STREAMLIT:
-    from IPython.display import Markdown, display
-
-    def md(text):
-        display(Markdown(text))
 
 #Pick the subreddits
 subreddits = ['GenZ', 'AskReddit', 'funny', 'worldnews','amitheasshole']
