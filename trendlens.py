@@ -259,14 +259,6 @@ st.markdown(
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
-[theme]
-base="dark"
-primaryColor="#FF4B4B"
-backgroundColor="#0e1117"
-secondaryBackgroundColor="#262730"
-textColor="#FAFAFA"
-font="sans serif"
-
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
