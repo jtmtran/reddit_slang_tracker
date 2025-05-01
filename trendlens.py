@@ -25,6 +25,10 @@ except ModuleNotFoundError:
 
 #pip install praw
 
+#pip install beautifulsoup4
+
+from bs4 import BeautifulSoup
+
 import praw #Python Reddit API Wrapper
 import pandas as pd
 from datetime import datetime
@@ -55,8 +59,8 @@ for sub in subreddits:
 
 #Create a Dataframe
 df_reddit = pd.DataFrame(posts_data)
-if not IN_STREAMLIT:
-    print(df_reddit.head())
+'''if not IN_STREAMLIT:
+    print(df_reddit.head())'''
 
 if not IN_STREAMLIT:
     print(df_reddit.shape)
@@ -69,7 +73,7 @@ from io import BytesIO
 
 # Load the dataset and handle potential encoding issues
 # Define the URL for the dataset (hosted on GitHub)
-url = 'https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/79508708ec9e2418136b61decce3a7f94c9345b3/reddit_trending_posts.csv'
+url = 'https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/685c4c7daaf64f8b3c810304fd95044c1beaace6/reddit_trending_posts.csv'
 
 # Fetch the dataset from the URL
 response = requests.get(url)
@@ -90,6 +94,8 @@ df_reddit.head()
 if not IN_STREAMLIT:
     md("## Clean Text + Extract Trending Words")
     md("### Clean Text")
+
+df_reddit.shape
 
 import re
 import nltk
@@ -146,16 +152,35 @@ slang_phrases = [
     "lit", "dope", "af", "sus"
 ]
 
-from collections import Counter
+df_reddit.columns
 
-phrase_counts = Counter()
+df_reddit.head()
+
+from collections import defaultdict
+import pandas as pd
+
+# Create a nested dictionary to count slang usage per day
+phrase_date_counts = defaultdict(int)
 
 for phrase in slang_phrases:
-    count = df_reddit['clean_text'].str.contains(phrase, case=False, na=False).sum()
-    phrase_counts[phrase] = count
+    # Find where the phrase appears in Reddit posts
+    mask = df_reddit['clean_text'].str.contains(phrase, case=False, na=False)
+    df_reddit['created'] = pd.to_datetime(df_reddit['created'], errors='coerce')
+    # Extract the 'created' date (strip time)
+    matched_dates = df_reddit.loc[mask, 'created'].dt.date
 
-df_slang = pd.DataFrame(phrase_counts.items(), columns=['term', 'frequency'])
-df_slang = df_slang[df_slang['frequency'] > 0].sort_values(by='frequency', ascending=False).reset_index(drop=True)
+    # Count how often each term appears per day
+    for date in matched_dates:
+        phrase_date_counts[(phrase, date)] += 1
+
+# Convert to DataFrame
+df_slang = pd.DataFrame(
+    [(term, date, count) for (term, date), count in phrase_date_counts.items()],
+    columns=['term', 'created_date', 'frequency']
+)
+
+# Optional: Sort by most used slang or latest date
+df_slang = df_slang.sort_values(by=['created_date', 'frequency'], ascending=[True, False])
 
 if not IN_STREAMLIT:
     md("##Look Up Terms In Urban Dictionary")
@@ -170,6 +195,8 @@ def format_definitions(defs):
 df_slang['definition_display'] = df_slang['urban_definition'].apply(format_definitions)
 
 df_slang['urban_definition'].apply(type).value_counts()
+
+df_slang.shape
 
 if not IN_STREAMLIT:
     print(df_slang.head())
@@ -229,8 +256,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # Load default dataset
-df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_trending_realtime/main/slang_terms.csv")
-
+df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
 st.markdown(
     "<a href='https://github.com/jtmtran/reddit_trending_realtime' target='_blank'>"
     "<img style='position: absolute; top: 0; right: 0; border: 0;' "
@@ -259,9 +285,16 @@ st.markdown(
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
+df.head()
+
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
+
+# Group and plot
+st.subheader("📈 Trending Slang Over Time")
+trending_data = df.groupby('created_date')['term'].count()
+st.line_chart(trending_data)
 
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
