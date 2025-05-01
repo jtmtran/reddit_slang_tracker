@@ -259,6 +259,13 @@ st.markdown(
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
+col1, col2 = st.columns(2)
+col1.metric("Unique Slang Terms", len(df['term'].unique()))
+col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
+
+# Line chart
+st.line_chart(df.groupby('date')['term'].count())
+
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
@@ -273,7 +280,18 @@ st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
 st.image(wordcloud.to_array(), use_container_width=True)
 
-# Definitions
+if st.checkbox("🔍 Show Raw Reddit Posts"):
+    st.dataframe(df_reddit[['subreddit', 'title', 'score']])
+
+with st.sidebar.expander("ℹ️ About this project"):
+    st.markdown("""
+    **TrendLens** is a real-time slang tracking app powered by Reddit + Urban Dictionary.
+
+    Created by [Jennie Tran](https://github.com/jtmtran)
+    Built with: Python • Streamlit • NLP
+    """)
+
+'''# Definitions
 st.subheader("📖 Slang Definitions + Urban Dictionary")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
@@ -292,6 +310,47 @@ if not def_row.empty:
 
   except Exception as e:
     st.error(f"Oops — something went wrong loading the definition: {e}")
+    '''
+
+st.subheader("💬 Try Your Own Slang (Manual Search)")
+user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
+
+if user_input:
+    try:
+        ud_result = define(user_input)
+        if ud_result:
+            st.markdown(f"**Definition 1:**")
+            st.info(ud_result[0]['def'])
+            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
+        else:
+            st.warning("No definition found for this slang.")
+    except Exception as e:
+        st.error(f"Couldn't fetch definition. Try another word. Error: {e}")
+else:
+    st.markdown("🧪 Or select from trending Reddit slang below:")
+
+# Your original block below
+st.subheader("📖 Slang Definitions + Urban Dictionary")
+selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
+def_row = df[df['term'] == selected_term]
+
+if not def_row.empty:
+  try:
+    definition = def_row['definition_display'].values[0]
+    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
+        defs = definition.split('\n')
+        for i, d in enumerate(defs, 1):
+            st.markdown(f"**Definition {i}:**")
+            st.info(d.strip())
+        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
+    else:
+        st.warning("No definition available for this term.")
+  except Exception as e:
+    st.error(f"Oops — something went wrong loading the definition: {e}")
+
+st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
+
+#pip install streamlit wordcloud matplotlib
 
 #Upload your own CSV
 df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
@@ -301,5 +360,3 @@ if df_upload:
 
 st.markdown("---")
 st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
-
-#pip install streamlit wordcloud matplotlib
