@@ -263,9 +263,6 @@ col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
 
-'''# Line chart
-st.line_chart(df.groupby('date')['term'].count())'''
-
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
