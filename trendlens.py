@@ -59,8 +59,9 @@ for sub in subreddits:
 
 #Create a Dataframe
 df_reddit = pd.DataFrame(posts_data)
-'''if not IN_STREAMLIT:
-    print(df_reddit.head())'''
+
+if not IN_STREAMLIT:
+    print(df_reddit.head())
 
 if not IN_STREAMLIT:
     print(df_reddit.shape)
@@ -285,11 +286,39 @@ st.markdown(
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
 
+#!pip install urbandict
+#from urbandict import define
+
 df.head()
 
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
+
+import altair as alt
+import pandas as pd
+import streamlit as st
+
+# Make sure 'created_date' is datetime
+df['created_date'] = pd.to_datetime(df['created_date'])
+
+# Group by day and sum frequencies
+daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
+
+# Altair chart with better formatting
+chart = alt.Chart(daily_counts).mark_line(point=True).encode(
+    x=alt.X('created_date:T', title='Date', axis=alt.Axis(format='%b %d')),  # e.g. Apr 22
+    y=alt.Y('frequency:Q', title='Slang Mentions'),
+    tooltip=['created_date:T', 'frequency']
+).properties(
+    title='Trending Slang Over Time',
+    width=700,
+    height=400
+).configure_axisX(
+    labelAngle=-30  # or try 0 if dates still feel cluttered
+)
+
+st.altair_chart(chart, use_container_width=True)
 
 # Group and plot
 st.subheader("📈 Trending Slang Over Time")
@@ -299,6 +328,25 @@ st.line_chart(trending_data)
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
+
+# Sort your DataFrame by frequency in descending order
+df_top = df_top.sort_values(by='frequency', ascending=True)  # ascending=True for horizontal bars (bottom-up)
+
+# Apply dark background if you're using dark Streamlit theme
+plt.style.use('dark_background')
+
+# Plot
+fig, ax = plt.subplots()
+df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue')
+
+# Customize labels
+ax.set_xlabel('Frequency')
+ax.set_ylabel('Term')
+ax.set_title('Top Slang Terms (Most to Least)')
+
+# Display
+st.pyplot(fig)
+
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
 ax.set_xlabel("Frequency")
@@ -308,6 +356,20 @@ st.pyplot(fig)
 # Word Cloud
 st.subheader("☁️ Visual Word Cloud of Slang")
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
+st.image(wordcloud.to_array(), use_container_width=True)
+
+from wordcloud import WordCloud
+
+st.subheader("☁️ Visual Word Cloud of Slang")
+
+df_wc = df.groupby('term')['frequency'].sum().reset_index()
+df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
+
+# Create a dictionary of terms and their frequency
+word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
+
+# Generate word cloud
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_freq)
 st.image(wordcloud.to_array(), use_container_width=True)
 
 if st.checkbox("🔍 Show Raw Reddit Posts"):
@@ -320,27 +382,6 @@ with st.sidebar.expander("ℹ️ About this project"):
     Created by [Jennie Tran](https://github.com/jtmtran)
     Built with: Python • Streamlit • NLP
     """)
-
-'''# Definitions
-st.subheader("📖 Slang Definitions + Urban Dictionary")
-selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
-def_row = df[df['term'] == selected_term]
-
-if not def_row.empty:
-  try:
-    definition = def_row['definition_display'].values[0]
-    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
-        defs = definition.split('\n')
-        for i, d in enumerate(defs, 1):
-            st.markdown(f"**Definition {i}:**")
-            st.info(d.strip())
-        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
-    else:
-        st.warning("No definition available for this term.")
-
-  except Exception as e:
-    st.error(f"Oops — something went wrong loading the definition: {e}")
-    '''
 
 st.subheader("💬 Try Your Own Slang (Manual Search)")
 user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
@@ -359,7 +400,6 @@ if user_input:
 else:
     st.markdown("🧪 Or select from trending Reddit slang below:")
 
-# Your original block below
 st.subheader("📖 Slang Definitions + Urban Dictionary")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
