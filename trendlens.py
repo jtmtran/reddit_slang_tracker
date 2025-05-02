@@ -90,13 +90,15 @@ if response.status_code == 200:
 else:
     print(f"Failed to retrieve the file. Status code: {response.status_code}")
 
-df_reddit.head()
+if not IN_STREAMLIT:
+    print(df_reddit.head())
 
 if not IN_STREAMLIT:
     md("## Clean Text + Extract Trending Words")
     md("### Clean Text")
 
-df_reddit.shape
+if not IN_STREAMLIT:
+    print(df_reddit.shape)
 
 import re
 import nltk
@@ -153,7 +155,8 @@ slang_phrases = [
     "lit", "dope", "af", "sus"
 ]
 
-df_reddit.columns
+if not IN_STREAMLIT:
+    print(df_reddit.columns)
 
 df_reddit.head()
 
@@ -289,7 +292,8 @@ st.markdown(
 #!pip install urbandict
 #from urbandict import define
 
-df.head()
+if not IN_STREAMLIT:
+    print(df.head())
 
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
@@ -302,49 +306,49 @@ import streamlit as st
 # Make sure 'created_date' is datetime
 df['created_date'] = pd.to_datetime(df['created_date'])
 
-# Group by day and sum frequencies
+# Group and summarize
 daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
 
-# Altair chart with better formatting
+# Chart
 chart = alt.Chart(daily_counts).mark_line(point=True).encode(
-    x=alt.X('created_date:T', title='Date', axis=alt.Axis(format='%b %d')),  # e.g. Apr 22
-    y=alt.Y('frequency:Q', title='Slang Mentions'),
+    x=alt.X('created_date:T', title='Date', axis=alt.Axis(format='%b %d, %Y')),
+    y=alt.Y('frequency:Q', title='Mentions', axis=alt.Axis(min=0)),
     tooltip=['created_date:T', 'frequency']
 ).properties(
     title='Trending Slang Over Time',
     width=700,
     height=400
-).configure_axisX(
-    labelAngle=-30  # or try 0 if dates still feel cluttered
+).configure_axis(
+    labelFontSize=12,
+    titleFontSize=14
+).configure_title(
+    fontSize=18,
+    anchor='start',
+    font='Helvetica'
 )
 
 st.altair_chart(chart, use_container_width=True)
-
-# Group and plot
-st.subheader("📈 Trending Slang Over Time")
-trending_data = df.groupby('created_date')['term'].count()
-st.line_chart(trending_data)
 
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
 
-# Sort your DataFrame by frequency in descending order
-df_top = df_top.sort_values(by='frequency', ascending=True)  # ascending=True for horizontal bars (bottom-up)
+# Create a copy of df with total slang frequencies
+df_top = df.groupby('term')['frequency'].sum().reset_index()
 
-# Apply dark background if you're using dark Streamlit theme
+# Sort in ascending order for horizontal bar chart (highest at the top)
+df_top = df_top.sort_values(by='frequency', ascending=True)
+
+# Then plot
+import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 
-# Plot
 fig, ax = plt.subplots()
 df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue')
 
-# Customize labels
 ax.set_xlabel('Frequency')
 ax.set_ylabel('Term')
 ax.set_title('Top Slang Terms (Most to Least)')
-
-# Display
 st.pyplot(fig)
 
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -352,11 +356,6 @@ ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
 ax.set_xlabel("Frequency")
 ax.set_ylabel("Term")
 st.pyplot(fig)
-
-# Word Cloud
-st.subheader("☁️ Visual Word Cloud of Slang")
-wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(filtered_df['term']))
-st.image(wordcloud.to_array(), use_container_width=True)
 
 from wordcloud import WordCloud
 
