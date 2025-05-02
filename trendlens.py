@@ -254,6 +254,11 @@ plt.show()
 
 #pip install streamlit
 
+#!pip install altair
+#!pip install wordcloud
+#!pip install urbandict
+#!pip install streamlit
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -312,7 +317,7 @@ daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
 # Chart
 chart = alt.Chart(daily_counts).mark_line(point=True).encode(
     x=alt.X('created_date:T', title='Date', axis=alt.Axis(format='%b %d, %Y')),
-    y=alt.Y('frequency:Q', title='Mentions', axis=alt.Axis(min=0)),
+    y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
     tooltip=['created_date:T', 'frequency']
 ).properties(
     title='Trending Slang Over Time',
