@@ -295,9 +295,9 @@ st.markdown(
 
 # Filter settings
 st.sidebar.title("⚙️ Controls")
+max_terms = df['term'].nunique()
 st.caption(f"Detected **{max_terms} unique slang terms**, used a total of **{int(df['frequency'].sum())} times** in Reddit posts.")
 min_freq = st.sidebar.slider("Minimum frequency", 1, int(df['frequency'].max()), 5)
-max_terms = df['term'].nunique()
 top_n = st.slider("How many top slang terms to show?", 5, max_terms, min(10, max_terms))
 st.sidebar.caption("Adjust the sliders to explore more or less frequent slang.")
 
