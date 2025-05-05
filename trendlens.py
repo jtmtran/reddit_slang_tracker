@@ -278,6 +278,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
+#from urbandict import define
+#print(define("sus"))
+
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📈 Trends",
+    "☁️ Word Cloud",
+    "📊 Bar Chart",
+    "💬 Manual Search",
+    "📖 Slang Lookup",
+    "📂 Raw Data"
+])
+
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
 st.markdown(
@@ -315,102 +327,99 @@ col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
 
-# Bar chart
-st.subheader("📊 Most Popular Slang Terms")
-st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
-
-# Create a copy of df with total slang frequencies
-df_top = df.groupby('term')['frequency'].sum().reset_index()
-
-# Sort in ascending order for horizontal bar chart (highest at the top)
-df_top = df_top.sort_values(by='frequency', ascending=True)
-
-# Then plot
-import matplotlib.pyplot as plt
-plt.style.use('dark_background')
-
-fig, ax = plt.subplots()
-df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue', legend = False)
-
-ax.set_xlabel('Frequency')
-ax.set_ylabel('Term')
-ax.set_title('Top Slang Terms (Most to Least)')
-
-# Show chart based on environment
-if 'google.colab' in sys.modules:
-    plt.show()  # 👈 show chart in Colab
-else:
-    st.pyplot(fig)  # 👈 render chart in Streamlit
-
 import altair as alt
 import pandas as pd
 import streamlit as st
 
-# Ensure datetime format
-df['created_date'] = pd.to_datetime(df['created_date'])
+with tab1:
+  # Ensure datetime format
+  df['created_date'] = pd.to_datetime(df['created_date'])
 
-# Group data by date
-daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
+  # Group data by date
+  daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
 
-# Build the line chart
-chart = alt.Chart(daily_counts).mark_line(point=True).encode(
-    x=alt.X('created_date:T', title='Date'),
-    y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
-    tooltip=['created_date:T', 'frequency']
-).properties(
-    width=700,
-    height=400,
-    title='Trending Slang Over Time'
-).configure_view(
-    fill='black',
-    stroke=None
-).configure_axis(
-    labelFontSize=12,
-    titleFontSize=14,
-    labelColor='white',
-    titleColor='white'
-).configure_title(
-    fontSize=18,
-    anchor='start',
-    font='Helvetica',
-    color='white'
-).configure_legend(
-    labelColor='white',
-    titleColor='white'
-).interactive()
+  # Build the line chart
+  chart = alt.Chart(daily_counts).mark_line(point=True).encode(
+      x=alt.X('created_date:T', title='Date'),
+      y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
+      tooltip=['created_date:T', 'frequency']
+  ).properties(
+      width=700,
+      height=400,
+      title='Trending Slang Over Time'
+  ).configure_view(
+      fill='black',
+      stroke=None
+  ).configure_axis(
+      labelFontSize=12,
+      titleFontSize=14,
+      labelColor='white',
+      titleColor='white'
+  ).configure_title(
+      fontSize=18,
+      anchor='start',
+      font='Helvetica',
+      color='white'
+  ).configure_legend(
+      labelColor='white',
+      titleColor='white'
+  ).interactive()
 
-if 'google.colab' in sys.modules:
-    plt.show()  # 👈 show chart in Colab
-else:
-    st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
+  if 'google.colab' in sys.modules:
+      plt.show()  # 👈 show chart in Colab
+  else:
+      st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
 
-from wordcloud import WordCloud
+with tab2:
+  st.subheader("☁️ Visual Word Cloud of Slang")
 
-st.subheader("☁️ Visual Word Cloud of Slang")
+  df_wc = df.groupby('term')['frequency'].sum().reset_index()
+  df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
-df_wc = df.groupby('term')['frequency'].sum().reset_index()
-df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
+  # Create a dictionary of terms and their frequency
+  word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
 
-# Create a dictionary of terms and their frequency
-word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
+  # Generate word cloud
+  wordcloud = WordCloud(width=800, height=400, background_color='black',
+                        colormap='Pastel1',
+                        prefer_horizontal=0.9
+                        ).generate_from_frequencies(word_freq)
+  # Display using matplotlib for more control
+  plt.figure(figsize=(10, 5))
+  plt.imshow(wordcloud, interpolation='bilinear')
+  plt.axis("off")  # Removes axes/legends
+  plt.tight_layout(pad=0)
 
-# Generate word cloud
-wordcloud = WordCloud(width=800, height=400, background_color='black',
-                      colormap='Pastel1',
-                      prefer_horizontal=0.9
-                      ).generate_from_frequencies(word_freq)
-# Display using matplotlib for more control
-plt.figure(figsize=(10, 5))
-plt.imshow(wordcloud, interpolation='bilinear')
-plt.axis("off")  # Removes axes/legends
-plt.tight_layout(pad=0)
+  st.pyplot(plt)
+  plt.show()
 
-st.pyplot(plt)
-plt.show()
+with tab3:
+    # Bar chart
+    st.subheader("📊 Most Popular Slang Terms")
+    st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
 
-if st.checkbox("🔍 Show Raw Reddit Posts"):
-    st.markdown("**Note:** 'Score' refers to a Reddit post's popularity — it's the number of upvotes minus downvotes.")
-    st.dataframe(df_reddit[['subreddit', 'title', 'score']].sort_values(by='score', ascending=False))
+    # Create a copy of df with total slang frequencies
+    df_top = df.groupby('term')['frequency'].sum().reset_index()
+
+    # Sort in descending order (highest at the top)
+    df_top = df_top.sort_values(by='frequency', ascending=False).head(20)
+
+    # Then plot
+    import matplotlib.pyplot as plt
+    plt.style.use('dark_background')
+
+    fig, ax = plt.subplots()
+    df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue', legend=False)
+
+    ax.set_xlabel('Frequency')
+    ax.set_ylabel('Term')
+    ax.set_title('Top Slang Terms (Most to Least)')
+
+    # Show chart based on environment
+    if 'google.colab' in sys.modules:
+        plt.show()
+    else:
+        st.pyplot(fig)
 
 with st.sidebar.expander("ℹ️ About this project"):
     st.markdown("""
@@ -421,66 +430,78 @@ with st.sidebar.expander("ℹ️ About this project"):
     Built with: Python • Streamlit • NLP
     """)
 
-#from urbandict import define
-#print(define("sus"))
-
 import requests
+with tab4:
+  # Define your API call function
+  def fetch_urban_definition(term):
+      url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
+      headers = {
+          "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",  # 🔑 Replace with your actual API key
+          "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
+      }
+      params = {"term": term}
 
-# Define your API call function
-def fetch_urban_definition(term):
-    url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
-    headers = {
-        "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",  # 🔑 Replace with your actual API key
-        "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
-    }
-    params = {"term": term}
+      response = requests.get(url, headers=headers, params=params)
+      data = response.json()
 
-    response = requests.get(url, headers=headers, params=params)
-    data = response.json()
-
-    if data.get("list"):
-        return data["list"][0]["definition"]
-    return None
-
-
-# Streamlit input section
-st.subheader("💬 Try Your Own Slang (Manual Search)")
-user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
-
-if user_input:
-    try:
-        definition = fetch_urban_definition(user_input)
-
-        if definition:
-            st.markdown("**Definition 1:**")
-            st.info(definition.strip())
-            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
-        else:
-            st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
-    except Exception as e:
-        st.error(f"Something went wrong. Error: {e}")
-else:
-    st.markdown("🧪 Or select from trending Reddit slang below:")
+      if data.get("list"):
+          return data["list"][0]["definition"]
+      return None
 
 
-# Existing dropdown for filtered slang
-st.subheader("📖 Slang Definitions + Urban Dictionary")
-selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
-def_row = df[df['term'] == selected_term]
+  # Streamlit input section
+  st.subheader("💬 Try Your Own Slang (Manual Search)")
+  user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
 
-if not def_row.empty:
-    try:
-        definition = def_row['definition_display'].values[0]
-        if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
-            defs = definition.split('\n')
-            for i, d in enumerate(defs, 1):
-                st.markdown(f"**Definition {i}:**")
-                st.info(d.strip())
-            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
-        else:
-            st.warning("No definition available for this term.")
-    except Exception as e:
-        st.error(f"Oops — something went wrong loading the definition: {e}")
+  if user_input:
+      try:
+          definition = fetch_urban_definition(user_input)
+
+          if definition:
+              st.markdown("**Definition 1:**")
+              st.info(definition.strip())
+              st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
+          else:
+              st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
+      except Exception as e:
+          st.error(f"Something went wrong. Error: {e}")
+  else:
+      st.markdown("🧪 Or select from trending Reddit slang below:")
+
+with tab5:
+  # Existing dropdown for filtered slang
+  st.subheader("📖 Slang Definitions + Urban Dictionary")
+  selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
+  def_row = df[df['term'] == selected_term]
+
+  if not def_row.empty:
+      try:
+          definition = def_row['definition_display'].values[0]
+          if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
+              defs = definition.split('\n')
+              for i, d in enumerate(defs, 1):
+                  st.markdown(f"**Definition {i}:**")
+                  st.info(d.strip())
+              st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
+          else:
+              st.warning("No definition available for this term.")
+      except Exception as e:
+          st.error(f"Oops — something went wrong loading the definition: {e}")
+
+with tab6:
+  if st.checkbox("🔍 Show Raw Reddit Posts"):
+      st.markdown("**Note:** 'Score' refers to a Reddit post's popularity — it's the number of upvotes minus downvotes.")
+      st.dataframe(df_reddit[['subreddit', 'title', 'score']].sort_values(by='score', ascending=False))
+
+with tab7:
+  with st.form("feedback_form"):
+    st.write("📮 Have thoughts or suggestions?")
+    feedback = st.text_area("Leave your feedback here:")
+    submitted = st.form_submit_button("Submit")
+
+    if submitted and feedback.strip():
+        st.success("Thanks for your feedback! 🙌")
+        # You can write it to a file, send an email, or store in Google Sheets
 
 st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
 
