@@ -254,14 +254,17 @@ plt.show()
 
 #pip install streamlit
 
+import subprocess
 import sys
 
-# Only run pip install if in Colab
+# Only install in Colab
 if 'google.colab' in sys.modules:
-    !pip install altair
-    !pip install wordcloud
-    !pip install urbandict
-    !pip install streamlit
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "altair"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "wordcloud"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "urbandict"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "streamlit"])
+
+    import altair as alt
     alt.renderers.enable('default')
 
 import streamlit as st
