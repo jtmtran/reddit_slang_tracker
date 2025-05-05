@@ -295,9 +295,10 @@ st.markdown(
 
 # Filter settings
 st.sidebar.title("⚙️ Controls")
-st.sidebar.markdown("Filter how many terms to show or upload your own slang CSV.")
+st.caption(f"Detected **{max_terms} unique slang terms**, used a total of **{int(df['frequency'].sum())} times** in Reddit posts.")
 min_freq = st.sidebar.slider("Minimum frequency", 1, int(df['frequency'].max()), 5)
-top_n = st.sidebar.slider("Top N slang terms to display", 5, 50, 15)
+max_terms = df['term'].nunique()
+top_n = st.slider("How many top slang terms to show?", 5, max_terms, min(10, max_terms))
 st.sidebar.caption("Adjust the sliders to explore more or less frequent slang.")
 
 # Apply filtering AFTER upload
@@ -441,44 +442,36 @@ with tab3:
     st.markdown("This chart ranks the top 20 most used slang terms from Reddit. It helps identify which phrases dominate online conversations.")
 
 import requests
+
 with tab4:
-  # Define your API call function
-  def fetch_urban_definition(term):
-      url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
-      headers = {
-          "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",
-          "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
-      }
-      params = {"term": term}
+    st.subheader("💬 Try Your Own Slang (Manual Search)")
+    user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
 
-      response = requests.get(url, headers=headers, params=params)
-      data = response.json()
+    if user_input:
+        try:
+            # Call API directly here instead of in a helper function
+            url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
+            headers = {
+                "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",
+                "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
+            }
+            response = requests.get(url, headers=headers, params={"term": user_input})
+            data = response.json()
 
-      if data.get("list"):
-          return data["list"][0]["definition"]
-      return None
-
-
-  # Streamlit input section
-  st.subheader("💬 Try Your Own Slang (Manual Search)")
-  user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
-
-  if user_input:
-      try:
-          definition = fetch_urban_definition(user_input)
-
-          if definition:
-              st.markdown("**Definition 1:**")
-              st.info(definition.strip())
-              st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
-          else:
-              st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
-      except Exception as e:
-          st.error(f"Something went wrong. Error: {e}")
-  else:
-      st.markdown("🧪 Or select from trending Reddit slang in the next tab")
-
-  #st.markdown("Type in any slang word to look up its Urban Dictionary meaning. Use this to explore terms outside the current Reddit trends.")
+            if data.get("list"):
+                st.markdown(f"**Definitions for _{user_input}_:**")
+                for i, entry in enumerate(data["list"][:3], 1):  # Show top 3 definitions
+                    def_text = entry.get("definition", "").strip()
+                    if def_text:
+                        st.markdown(f"**Definition {i}:**")
+                        st.info(def_text)
+                st.markdown(f"[🔗 View more on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
+            else:
+                st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
+        except Exception as e:
+            st.error(f"Something went wrong. Error: {e}")
+    else:
+        st.markdown("🧪 Or select from trending Reddit slang in the next tab")
 
 with tab5:
   # Existing dropdown for filtered slang
