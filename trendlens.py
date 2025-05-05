@@ -267,10 +267,10 @@ if 'google.colab' in sys.modules:
 
     import altair as alt
     alt.renderers.enable('default')
-    from urbandict import define  # Safe to import here after install
+    #from urbandict import define  # Safe to import here after install
 
-else:
-    from urbandict import define  # For environments like Streamlit where it's already installed
+#else:
+    #from urbandict import define  # For environments like Streamlit where it's already installed
 
 # Universal imports
 import streamlit as st
@@ -421,8 +421,8 @@ with st.sidebar.expander("ℹ️ About this project"):
     Built with: Python • Streamlit • NLP
     """)
 
-from urbandict import define
-print(define("sus"))
+#from urbandict import define
+#print(define("sus"))
 
 import requests
 
@@ -430,7 +430,7 @@ import requests
 def fetch_urban_definition(term):
     url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
     headers = {
-        "X-RapidAPI-Key": "YOUR_API_KEY",  # 🔑 Replace with your actual API key
+        "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",  # 🔑 Replace with your actual API key
         "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
     }
     params = {"term": term}
