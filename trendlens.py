@@ -427,12 +427,16 @@ user_input = st.text_input("Type a slang word to look up its Urban Dictionary me
 if user_input:
     try:
         ud_result = define(user_input)
-        if ud_result and len(ud_result) > 0 and 'def' in ud_result[0]:
-            st.markdown(f"**Definition 1:**")
-            st.info(ud_result[0]['def'])
-            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
+        if isinstance(ud_result, list) and len(ud_result) > 0:
+            first_def = ud_result[0].get('def', '').strip()
+            if first_def:
+                st.markdown("**Definition 1:**")
+                st.info(first_def)
+                st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
+            else:
+                st.warning(f"No definition text found for '**{user_input}**'.")
         else:
-            st.warning(f"Urban Dictionary doesn't have a definition for '**{user_input}**'. Try another term!")
+            st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
     except Exception as e:
         st.error(f"Something went wrong. Error: {e}")
 else:
@@ -443,18 +447,18 @@ selected_term = st.selectbox("Select a slang term to see its meaning:", filtered
 def_row = df[df['term'] == selected_term]
 
 if not def_row.empty:
-  try:
-    definition = def_row['definition_display'].values[0]
-    if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
-        defs = definition.split('\n')
-        for i, d in enumerate(defs, 1):
-            st.markdown(f"**Definition {i}:**")
-            st.info(d.strip())
-        st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
-    else:
-        st.warning("No definition available for this term.")
-  except Exception as e:
-    st.error(f"Oops — something went wrong loading the definition: {e}")
+    try:
+        definition = def_row['definition_display'].values[0]
+        if isinstance(definition, str) and definition.strip().lower() != "nan" and definition.strip():
+            defs = definition.split('\n')
+            for i, d in enumerate(defs, 1):
+                st.markdown(f"**Definition {i}:**")
+                st.info(d.strip())
+            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={selected_term})")
+        else:
+            st.warning("No definition available for this term.")
+    except Exception as e:
+        st.error(f"Oops — something went wrong loading the definition: {e}")
 
 st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
 
