@@ -254,10 +254,15 @@ plt.show()
 
 #pip install streamlit
 
-#!pip install altair
-#!pip install wordcloud
-#!pip install urbandict
-#!pip install streamlit
+import sys
+
+# Only run pip install if in Colab
+if 'google.colab' in sys.modules:
+    !pip install altair
+    !pip install wordcloud
+    !pip install urbandict
+    !pip install streamlit
+    alt.renderers.enable('default')
 
 import streamlit as st
 import pandas as pd
