@@ -6,4 +6,3 @@ praw
 nltk
 scikit-learn
 beautifulsoup4
-urbandict
