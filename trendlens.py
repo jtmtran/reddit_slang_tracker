@@ -297,7 +297,7 @@ st.sidebar.title("⚙️ Controls")
 max_terms = df['term'].nunique()
 st.sidebar.caption(f"Detected **{max_terms} unique slang terms**, used a total of **{int(df['frequency'].sum())} times** in Reddit posts.")
 min_freq = st.sidebar.slider("Minimum frequency", 1, int(df['frequency'].max()), 5)
-top_n = st.slider("How many top slang terms to show?", 5, max_terms, min(10, max_terms))
+top_n = st.sidebar.slider("How many top slang terms to show?", 5, max_terms, min(10, max_terms))
 st.sidebar.caption("Adjust the sliders to explore more or less frequent slang.")
 
 # Apply filtering AFTER upload
@@ -345,6 +345,9 @@ import pandas as pd
 import streamlit as st
 
 with tab1:
+  st.subheader("Trending Slang Over Time")
+  st.markdown("**📈 Summary:**"
+      "This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
   # Ensure datetime format
   df['created_date'] = pd.to_datetime(df['created_date'])
 
@@ -356,10 +359,6 @@ with tab1:
       x=alt.X('created_date:T', title='Date'),
       y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
       tooltip=['created_date:T', 'frequency']
-  ).properties(
-      width=700,
-      height=400,
-      title='Trending Slang Over Time'
   ).configure_view(
       fill='black',
       stroke=None
@@ -383,37 +382,28 @@ with tab1:
   else:
       st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
 
-  st.markdown("This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
-
 with tab2:
-  st.subheader("☁️ Visual Word Cloud of Slang")
+    st.subheader("Visual Word Cloud of Slang")
+    st.markdown("**📈 Summary:**")
+    st.markdown(
+        "The word cloud highlights the most frequently mentioned slang terms. "
+        "Larger words represent more popular or commonly used expressions.")
+    df_wc = df.groupby('term')['frequency'].sum().reset_index()
+    df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
-  df_wc = df.groupby('term')['frequency'].sum().reset_index()
-  df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
+    word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
 
-  # Create a dictionary of terms and their frequency
-  word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
+    wordcloud = WordCloud(
+        width=800, height=400, background_color='black',
+        colormap='Pastel1', prefer_horizontal=0.9
+    ).generate_from_frequencies(word_freq)
 
-  # Generate word cloud
-  wordcloud = WordCloud(width=800, height=400, background_color='black',
-                        colormap='Pastel1',
-                        prefer_horizontal=0.9
-                        ).generate_from_frequencies(word_freq)
-  # Display using matplotlib for more control
-  plt.figure(figsize=(10, 5))
-  plt.imshow(wordcloud, interpolation='bilinear')
-  plt.axis("off")  # Removes axes/legends
-  plt.tight_layout(pad=0)
-
-  st.pyplot(plt)
-  plt.show()
-
-  st.markdown("The word cloud highlights the most frequently mentioned slang terms. Larger words represent more popular or commonly used expressions.")
+    st.image(wordcloud.to_array(), use_container_width=True, channels="RGB", output_format="PNG")
 
 with tab3:
     # Bar chart
-    st.subheader("📊 Most Popular Slang Terms")
-    st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
+    st.subheader("Most Popular Slang Terms")
+    st.markdown("**📈 Summary:** This chart ranks the top 10 most used slang terms from Reddit. It helps identify which phrases dominate online conversations. Use the controls to explore frequency and meaning in real time.")
 
     # Create a copy of df with total slang frequencies
     df_top = df.groupby('term')['frequency'].sum().reset_index()
@@ -438,12 +428,10 @@ with tab3:
     else:
         st.pyplot(fig)
 
-    st.markdown("This chart ranks the top 20 most used slang terms from Reddit. It helps identify which phrases dominate online conversations.")
-
 import requests
 
 with tab4:
-    st.subheader("💬 Try Your Own Slang (Manual Search)")
+    st.subheader("Try Your Own Slang (Manual Search)")
     user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
 
     if user_input:
@@ -474,7 +462,7 @@ with tab4:
 
 with tab5:
   # Existing dropdown for filtered slang
-  st.subheader("📖 Slang Definitions + Urban Dictionary")
+  st.subheader("Slang Definitions + Urban Dictionary")
   selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
   def_row = df[df['term'] == selected_term]
 
@@ -503,7 +491,7 @@ with tab6:
 
 with tab7:
     with st.form("feedback_form"):
-        st.write("📮 Have thoughts or suggestions?")
+        st.write("Have thoughts or suggestions?")
         feedback = st.text_area("Leave your feedback here:")
         submitted = st.form_submit_button("Submit")
 
