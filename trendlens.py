@@ -254,10 +254,10 @@ plt.show()
 
 #pip install streamlit
 
-!pip install altair
-!pip install wordcloud
-!pip install urbandict
-!pip install streamlit
+#!pip install altair
+#!pip install wordcloud
+#!pip install urbandict
+#!pip install streamlit
 
 import streamlit as st
 import pandas as pd
