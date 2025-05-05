@@ -200,7 +200,8 @@ df_slang['definition_display'] = df_slang['urban_definition'].apply(format_defin
 
 df_slang['urban_definition'].apply(type).value_counts()
 
-df_slang.shape
+if not IN_STREAMLIT:
+    print(df_slang.shape)
 
 if not IN_STREAMLIT:
     print(df_slang.head())
@@ -332,8 +333,12 @@ df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue', legend
 ax.set_xlabel('Frequency')
 ax.set_ylabel('Term')
 ax.set_title('Top Slang Terms (Most to Least)')
-st.pyplot(fig)
-fig
+
+# Show chart based on environment
+if 'google.colab' in sys.modules:
+    plt.show()  # 👈 show chart in Colab
+else:
+    st.pyplot(fig)  # 👈 render chart in Streamlit
 
 import altair as alt
 import pandas as pd
