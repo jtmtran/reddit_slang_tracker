@@ -272,6 +272,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
+from urbandict import define
 
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
@@ -302,9 +303,6 @@ st.markdown(
     "🗣 Built for Gen Z, linguists, and trend-watchers.  \n"
     "🔍 Explore, define, and visualize how slang moves through the internet — in real time."
 )
-
-#!pip install urbandict
-#from urbandict import define
 
 if not IN_STREAMLIT:
     print(df.head())
@@ -407,13 +405,15 @@ st.pyplot(plt)
 plt.show()
 
 if st.checkbox("🔍 Show Raw Reddit Posts"):
-    st.dataframe(df_reddit[['subreddit', 'title', 'score']])
+    st.markdown("**Note:** 'Score' refers to a Reddit post's popularity — it's the number of upvotes minus downvotes.")
+    st.dataframe(df_reddit[['subreddit', 'title', 'score']].sort_values(by='score', ascending=False))
 
 with st.sidebar.expander("ℹ️ About this project"):
     st.markdown("""
     **TrendLens** is a real-time slang tracking app powered by Reddit + Urban Dictionary.
 
     Created by [Jennie Tran](https://github.com/jtmtran)
+
     Built with: Python • Streamlit • NLP
     """)
 
