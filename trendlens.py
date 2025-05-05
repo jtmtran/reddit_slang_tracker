@@ -377,9 +377,10 @@ chart = alt.Chart(daily_counts).mark_line(point=True).encode(
     titleColor='white'
 ).interactive()
 
-# Show chart in Streamlit
-st.altair_chart(chart, use_container_width=True)
-chart
+if 'google.colab' in sys.modules:
+    plt.show()  # 👈 show chart in Colab
+else:
+    st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
 
 from wordcloud import WordCloud
 
