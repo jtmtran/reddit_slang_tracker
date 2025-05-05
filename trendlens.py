@@ -254,10 +254,10 @@ plt.show()
 
 #pip install streamlit
 
-#!pip install altair
-#!pip install wordcloud
-#!pip install urbandict
-#!pip install streamlit
+!pip install altair
+!pip install wordcloud
+!pip install urbandict
+!pip install streamlit
 
 import streamlit as st
 import pandas as pd
@@ -304,36 +304,6 @@ col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
 
-import altair as alt
-import pandas as pd
-import streamlit as st
-
-# Make sure 'created_date' is datetime
-df['created_date'] = pd.to_datetime(df['created_date'])
-
-# Group and summarize
-daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
-
-# Chart
-chart = alt.Chart(daily_counts).mark_line(point=True).encode(
-    x=alt.X('created_date:T', title='Date', axis=alt.Axis(format='%b %d, %Y')),
-    y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
-    tooltip=['created_date:T', 'frequency']
-).properties(
-    title='Trending Slang Over Time',
-    width=700,
-    height=400
-).configure_axis(
-    labelFontSize=12,
-    titleFontSize=14
-).configure_title(
-    fontSize=18,
-    anchor='start',
-    font='Helvetica'
-)
-
-st.altair_chart(chart, use_container_width=True)
-
 # Bar chart
 st.subheader("📊 Most Popular Slang Terms")
 st.markdown("**📈 Summary:** This dashboard shows the top trending slang terms scraped from Reddit. Use the controls to explore frequency and meaning in real time.")
@@ -349,18 +319,54 @@ import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 
 fig, ax = plt.subplots()
-df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue')
+df_top.plot(kind='barh', x='term', y='frequency', ax=ax, color='skyblue', legend = False)
 
 ax.set_xlabel('Frequency')
 ax.set_ylabel('Term')
 ax.set_title('Top Slang Terms (Most to Least)')
 st.pyplot(fig)
+fig
 
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.barh(filtered_df['term'][::-1], filtered_df['frequency'][::-1])
-ax.set_xlabel("Frequency")
-ax.set_ylabel("Term")
-st.pyplot(fig)
+import altair as alt
+import pandas as pd
+import streamlit as st
+
+# Ensure datetime format
+df['created_date'] = pd.to_datetime(df['created_date'])
+
+# Group data by date
+daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
+
+# Build the line chart
+chart = alt.Chart(daily_counts).mark_line(point=True).encode(
+    x=alt.X('created_date:T', title='Date'),
+    y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
+    tooltip=['created_date:T', 'frequency']
+).properties(
+    width=700,
+    height=400,
+    title='Trending Slang Over Time'
+).configure_view(
+    fill='black',
+    stroke=None
+).configure_axis(
+    labelFontSize=12,
+    titleFontSize=14,
+    labelColor='white',
+    titleColor='white'
+).configure_title(
+    fontSize=18,
+    anchor='start',
+    font='Helvetica',
+    color='white'
+).configure_legend(
+    labelColor='white',
+    titleColor='white'
+).interactive()
+
+# Show chart in Streamlit
+st.altair_chart(chart, use_container_width=True)
+chart
 
 from wordcloud import WordCloud
 
@@ -373,8 +379,18 @@ df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascend
 word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
 
 # Generate word cloud
-wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_freq)
-st.image(wordcloud.to_array(), use_container_width=True)
+wordcloud = WordCloud(width=800, height=400, background_color='black',
+                      colormap='Pastel1',
+                      prefer_horizontal=0.9
+                      ).generate_from_frequencies(word_freq)
+# Display using matplotlib for more control
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")  # Removes axes/legends
+plt.tight_layout(pad=0)
+
+st.pyplot(plt)
+plt.show()
 
 if st.checkbox("🔍 Show Raw Reddit Posts"):
     st.dataframe(df_reddit[['subreddit', 'title', 'score']])
