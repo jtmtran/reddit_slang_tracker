@@ -421,20 +421,40 @@ with st.sidebar.expander("ℹ️ About this project"):
     Built with: Python • Streamlit • NLP
     """)
 
+from urbandict import define
+print(define("sus"))
+
+import requests
+
+# Define your API call function
+def fetch_urban_definition(term):
+    url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
+    headers = {
+        "X-RapidAPI-Key": "YOUR_API_KEY",  # 🔑 Replace with your actual API key
+        "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
+    }
+    params = {"term": term}
+
+    response = requests.get(url, headers=headers, params=params)
+    data = response.json()
+
+    if data.get("list"):
+        return data["list"][0]["definition"]
+    return None
+
+
+# Streamlit input section
 st.subheader("💬 Try Your Own Slang (Manual Search)")
 user_input = st.text_input("Type a slang word to look up its Urban Dictionary meaning:")
 
 if user_input:
     try:
-        ud_result = define(user_input)
-        if isinstance(ud_result, list) and len(ud_result) > 0:
-            first_def = ud_result[0].get('def', '').strip()
-            if first_def:
-                st.markdown("**Definition 1:**")
-                st.info(first_def)
-                st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
-            else:
-                st.warning(f"No definition text found for '**{user_input}**'.")
+        definition = fetch_urban_definition(user_input)
+
+        if definition:
+            st.markdown("**Definition 1:**")
+            st.info(definition.strip())
+            st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
         else:
             st.warning(f"No definition found for '**{user_input}**' on Urban Dictionary.")
     except Exception as e:
@@ -442,6 +462,8 @@ if user_input:
 else:
     st.markdown("🧪 Or select from trending Reddit slang below:")
 
+
+# Existing dropdown for filtered slang
 st.subheader("📖 Slang Definitions + Urban Dictionary")
 selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
 def_row = df[df['term'] == selected_term]
