@@ -314,6 +314,18 @@ st.markdown(
 if not IN_STREAMLIT:
     print(df.head())
 
+with st.sidebar.expander("ℹ️ About this project"):
+    st.markdown("""
+    **TrendLens** is a real-time slang tracking app powered by Reddit + Urban Dictionary.
+
+    It scrapes Reddit posts, detects emerging slang terms, and cross-references their meanings using the Urban Dictionary API.
+
+    **Created by:** [Jennie Tran](https://github.com/jtmtran)
+    **Built with:** Python • Streamlit • NLP
+
+    [![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)
+    """)
+
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
@@ -407,7 +419,7 @@ with tab3:
     df_top = df.groupby('term')['frequency'].sum().reset_index()
 
     # Sort in descending order (highest at the top)
-    df_top = df_top.sort_values(by='frequency', ascending=False).head(20)
+    df_top = df_top.sort_values(by='frequency', ascending=True).head(10)
 
     # Then plot
     import matplotlib.pyplot as plt
@@ -428,22 +440,13 @@ with tab3:
 
     st.markdown("This chart ranks the top 20 most used slang terms from Reddit. It helps identify which phrases dominate online conversations.")
 
-with st.sidebar.expander("ℹ️ About this project"):
-    st.markdown("""
-    **TrendLens** is a real-time slang tracking app powered by Reddit + Urban Dictionary.
-
-    Created by [Jennie Tran](https://github.com/jtmtran)
-
-    Built with: Python • Streamlit • NLP
-    """)
-
 import requests
 with tab4:
   # Define your API call function
   def fetch_urban_definition(term):
       url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
       headers = {
-          "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",  # 🔑 Replace with your actual API key
+          "X-RapidAPI-Key": "083a1412b9msh0d9f5a60f7c9649p1e37a2jsn078a7118175c",
           "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com"
       }
       params = {"term": term}
@@ -475,7 +478,7 @@ with tab4:
   else:
       st.markdown("🧪 Or select from trending Reddit slang in the next tab")
 
-  st.markdown("Type in any slang word to look up its Urban Dictionary meaning. Use this to explore terms outside the current Reddit trends.")
+  #st.markdown("Type in any slang word to look up its Urban Dictionary meaning. Use this to explore terms outside the current Reddit trends.")
 
 with tab5:
   # Existing dropdown for filtered slang
@@ -515,16 +518,6 @@ with tab7:
         if submitted and feedback.strip():
             st.success("Thanks for your feedback! 🙌")
             # Optional: save to file or Google Sheet
-
-st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
-
-#pip install streamlit wordcloud matplotlib
-
-#Upload your own CSV
-df_upload = st.file_uploader("Upload a new slang CSV file", type="csv")
-if df_upload:
-    df = pd.read_csv(df_upload)
-    st.success("Uploaded new dataset!")
 
 st.markdown("---")
 st.caption("Built with ❤️ by Jennie Tran | [GitHub](https://github.com/jtmtran)")
