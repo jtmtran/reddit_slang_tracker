@@ -267,12 +267,16 @@ if 'google.colab' in sys.modules:
 
     import altair as alt
     alt.renderers.enable('default')
+    from urbandict import define  # Safe to import here after install
 
+else:
+    from urbandict import define  # For environments like Streamlit where it's already installed
+
+# Universal imports
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-from urbandict import define
 
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
