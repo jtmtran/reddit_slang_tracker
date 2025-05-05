@@ -281,15 +281,6 @@ from wordcloud import WordCloud
 #from urbandict import define
 #print(define("sus"))
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📈 Trends",
-    "☁️ Word Cloud",
-    "📊 Bar Chart",
-    "💬 Manual Search",
-    "📖 Slang Lookup",
-    "📂 Raw Data"
-])
-
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
 st.markdown(
@@ -326,6 +317,16 @@ if not IN_STREAMLIT:
 col1, col2 = st.columns(2)
 col1.metric("Unique Slang Terms", len(df['term'].unique()))
 col2.metric("Most Frequent Term", df['term'].value_counts().idxmax())
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "📈 Trends",
+    "☁️ Word Cloud",
+    "📊 Bar Chart",
+    "💬 Manual Search",
+    "📖 Slang Lookup",
+    "📂 Raw Data",
+    "📮 Feedback"
+])
 
 import altair as alt
 import pandas as pd
@@ -370,6 +371,8 @@ with tab1:
   else:
       st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
 
+  st.markdown("This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
+
 with tab2:
   st.subheader("☁️ Visual Word Cloud of Slang")
 
@@ -392,6 +395,8 @@ with tab2:
 
   st.pyplot(plt)
   plt.show()
+
+  st.markdown("The word cloud highlights the most frequently mentioned slang terms. Larger words represent more popular or commonly used expressions.")
 
 with tab3:
     # Bar chart
@@ -420,6 +425,8 @@ with tab3:
         plt.show()
     else:
         st.pyplot(fig)
+
+    st.markdown("This chart ranks the top 20 most used slang terms from Reddit. It helps identify which phrases dominate online conversations.")
 
 with st.sidebar.expander("ℹ️ About this project"):
     st.markdown("""
@@ -466,7 +473,9 @@ with tab4:
       except Exception as e:
           st.error(f"Something went wrong. Error: {e}")
   else:
-      st.markdown("🧪 Or select from trending Reddit slang below:")
+      st.markdown("🧪 Or select from trending Reddit slang in the next tab")
+
+  st.markdown("Type in any slang word to look up its Urban Dictionary meaning. Use this to explore terms outside the current Reddit trends.")
 
 with tab5:
   # Existing dropdown for filtered slang
@@ -488,20 +497,24 @@ with tab5:
       except Exception as e:
           st.error(f"Oops — something went wrong loading the definition: {e}")
 
+  st.markdown("Select from the trending terms found on Reddit to view their meanings. Definitions are sourced from Urban Dictionary or scraped content.")
+
 with tab6:
   if st.checkbox("🔍 Show Raw Reddit Posts"):
       st.markdown("**Note:** 'Score' refers to a Reddit post's popularity — it's the number of upvotes minus downvotes.")
       st.dataframe(df_reddit[['subreddit', 'title', 'score']].sort_values(by='score', ascending=False))
 
-with tab7:
-  with st.form("feedback_form"):
-    st.write("📮 Have thoughts or suggestions?")
-    feedback = st.text_area("Leave your feedback here:")
-    submitted = st.form_submit_button("Submit")
+  st.markdown("Here’s the raw Reddit post data used in the analysis. You can sort by subreddit or score to explore context and popularity.")
 
-    if submitted and feedback.strip():
-        st.success("Thanks for your feedback! 🙌")
-        # You can write it to a file, send an email, or store in Google Sheets
+with tab7:
+    with st.form("feedback_form"):
+        st.write("📮 Have thoughts or suggestions?")
+        feedback = st.text_area("Leave your feedback here:")
+        submitted = st.form_submit_button("Submit")
+
+        if submitted and feedback.strip():
+            st.success("Thanks for your feedback! 🙌")
+            # Optional: save to file or Google Sheet
 
 st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Repo-informational?style=flat&logo=github)](https://github.com/jtmtran/reddit_trending_realtime)")
 
