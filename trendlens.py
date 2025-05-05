@@ -304,7 +304,7 @@ st.sidebar.caption("Adjust the sliders to explore more or less frequent slang.")
 filtered_df = df[df['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
 # Display title
-st.title("🧠 TrendLens: Real-Time Slang Radar")
+st.title("🧠 TrendLens: Track What’s Poppin’")
 st.markdown(
     "👋 Welcome to **TrendLens**, a live dashboard that scrapes Reddit posts to track trending slang.  \n"
     "🗣 Built for Gen Z, linguists, and trend-watchers.  \n"
@@ -346,8 +346,8 @@ import streamlit as st
 
 with tab1:
   st.subheader("Trending Slang Over Time")
-  st.markdown("**📈 Summary:**"
-      "This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
+  st.markdown("**📈 Summary:**")
+  st.markdown("This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
   # Ensure datetime format
   df['created_date'] = pd.to_datetime(df['created_date'])
 
@@ -403,7 +403,8 @@ with tab2:
 with tab3:
     # Bar chart
     st.subheader("Most Popular Slang Terms")
-    st.markdown("**📈 Summary:** This chart ranks the top 10 most used slang terms from Reddit. It helps identify which phrases dominate online conversations. Use the controls to explore frequency and meaning in real time.")
+    st.markdown("**📈 Summary:**")
+    st.markdown("This chart ranks the top 10 most used slang terms from Reddit. It helps identify which phrases dominate online conversations. Use the controls to explore frequency and meaning in real time.")
 
     # Create a copy of df with total slang frequencies
     df_top = df.groupby('term')['frequency'].sum().reset_index()
