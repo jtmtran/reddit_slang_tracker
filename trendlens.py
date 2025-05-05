@@ -427,14 +427,14 @@ user_input = st.text_input("Type a slang word to look up its Urban Dictionary me
 if user_input:
     try:
         ud_result = define(user_input)
-        if ud_result:
+        if ud_result and len(ud_result) > 0 and 'def' in ud_result[0]:
             st.markdown(f"**Definition 1:**")
             st.info(ud_result[0]['def'])
             st.markdown(f"[🔗 View on Urban Dictionary](https://www.urbandictionary.com/define.php?term={user_input})")
         else:
-            st.warning("No definition found for this slang.")
+            st.warning(f"Urban Dictionary doesn't have a definition for '**{user_input}**'. Try another term!")
     except Exception as e:
-        st.error(f"Couldn't fetch definition. Try another word. Error: {e}")
+        st.error(f"Something went wrong. Error: {e}")
 else:
     st.markdown("🧪 Or select from trending Reddit slang below:")
 
