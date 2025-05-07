@@ -413,6 +413,12 @@ with tab1:
     # Display final chart
     st.altair_chart(styled_chart, use_container_width=True)
 
+    # 🔍 Get top slang term on the most active day
+    top_terms_on_max_day = df[df['created_date'] == max_day['created_date']]
+    top_term_row = top_terms_on_max_day.loc[top_terms_on_max_day['frequency'].idxmax()]
+    top_term = top_term_row['term']
+    top_freq = top_term_row['frequency']
+
     # Display metrics
     st.metric(
         label="📌 Most Active Day",
@@ -420,6 +426,7 @@ with tab1:
         delta=f"{max_day['frequency']} mentions"
     )
 
+    st.markdown(f"🏆 **Most Used Term That Day:** `{top_term}` with {top_freq} mentions")
     st.markdown(f"🔻 **Lowest Mentions:** {min_day['frequency']} on {min_day['created_date'].strftime('%b %d, %Y')}")
 
 with tab2:
