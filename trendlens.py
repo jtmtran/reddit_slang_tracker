@@ -393,18 +393,18 @@ with tab1:
         y='frequency:Q'
     )
 
-    # Add label above the red point
+    # Add label above the red point (removed fontSize here)
     text_label = alt.Chart(highlight_df).mark_text(
-        align='left', dx=5, dy=-10, color='white', fontSize=14
+        align='left', dx=5, dy=-10, color='white'
     ).encode(
         x='created_date:T',
         y='frequency:Q',
-        text='frequency:Q'  # ← Use column name, not alt.value()
+        text='frequency:Q'
     )
 
     # Combine and show chart
     combined_chart = base_chart + highlight + text_label
-    st.altair_chart(combined_chart, use_container_width=True)
+    st.altair_chart(combined_chart.configure_mark(fontSize=14), use_container_width=True)
 
     # Display insights
     st.metric(
