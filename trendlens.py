@@ -357,11 +357,41 @@ with tab1:
     max_day = daily_counts.loc[daily_counts['frequency'].idxmax()]
     min_day = daily_counts.loc[daily_counts['frequency'].idxmin()]
 
-    # Main chart
+    # Base line chart
     base_chart = alt.Chart(daily_counts).mark_line(point=True).encode(
         x=alt.X('created_date:T', title='Date'),
         y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
         tooltip=['created_date:T', 'frequency']
+    )
+
+    # Highlight max point
+    highlight_df = pd.DataFrame({
+        "created_date": [max_day["created_date"]],
+        "frequency": [max_day["frequency"]]
+    })
+
+    highlight = alt.Chart(highlight_df).mark_point(
+        color='red', size=100
+    ).encode(
+        x='created_date:T',
+        y='frequency:Q'
+    )
+
+    # Add label above the red point
+    text_label = alt.Chart(highlight_df).mark_text(
+        align='left', dx=5, dy=-10, color='white'
+    ).encode(
+        x='created_date:T',
+        y='frequency:Q',
+        text='frequency:Q'
+    )
+
+    # Combine layers first
+    combined_chart = base_chart + highlight + text_label
+
+    # Apply styling after combining
+    styled_chart = combined_chart.configure_mark(
+        fontSize=14
     ).configure_view(
         fill='black',
         stroke=None
@@ -380,33 +410,10 @@ with tab1:
         titleColor='white'
     ).interactive()
 
-    # Highlight max point
-    highlight_df = pd.DataFrame({
-        "created_date": [max_day["created_date"]],
-        "frequency": [max_day["frequency"]]
-    })
+    # Display final chart
+    st.altair_chart(styled_chart, use_container_width=True)
 
-    highlight = alt.Chart(highlight_df).mark_point(
-        color='red', size=100
-    ).encode(
-        x='created_date:T',
-        y='frequency:Q'
-    )
-
-    # Add label above the red point (removed fontSize here)
-    text_label = alt.Chart(highlight_df).mark_text(
-        align='left', dx=5, dy=-10, color='white'
-    ).encode(
-        x='created_date:T',
-        y='frequency:Q',
-        text='frequency:Q'
-    )
-
-    # Combine and show chart
-    combined_chart = base_chart + highlight + text_label
-    st.altair_chart(combined_chart.configure_mark(fontSize=14), use_container_width=True)
-
-    # Display insights
+    # Display metrics
     st.metric(
         label="📌 Most Active Day",
         value=max_day['created_date'].strftime("%b %d, %Y"),
