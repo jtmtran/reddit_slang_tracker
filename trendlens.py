@@ -340,47 +340,59 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📮 Feedback"
 ])
 
-import altair as alt
-import pandas as pd
-import streamlit as st
-
 with tab1:
-  st.subheader("Trending Slang Over Time")
-  st.markdown("**📈 Summary:**")
-  st.markdown("This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
-  # Ensure datetime format
-  df['created_date'] = pd.to_datetime(df['created_date'])
+    st.subheader("Trending Slang Over Time")
+    st.markdown("**📈 Summary:**")
+    st.markdown("This timeline shows how often each slang term appeared in Reddit posts over time. Sudden spikes may reflect viral trends, memes, or events.")
 
-  # Group data by date
-  daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
+    # Ensure datetime format
+    df['created_date'] = pd.to_datetime(df['created_date'])
 
-  # Build the line chart
-  chart = alt.Chart(daily_counts).mark_line(point=True).encode(
-      x=alt.X('created_date:T', title='Date'),
-      y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
-      tooltip=['created_date:T', 'frequency']
-  ).configure_view(
-      fill='black',
-      stroke=None
-  ).configure_axis(
-      labelFontSize=12,
-      titleFontSize=14,
-      labelColor='white',
-      titleColor='white'
-  ).configure_title(
-      fontSize=18,
-      anchor='start',
-      font='Helvetica',
-      color='white'
-  ).configure_legend(
-      labelColor='white',
-      titleColor='white'
-  ).interactive()
+    # Group data by date
+    daily_counts = df.groupby('created_date')['frequency'].sum().reset_index()
 
-  if 'google.colab' in sys.modules:
-      plt.show()  # 👈 show chart in Colab
-  else:
-      st.altair_chart(chart, use_container_width=True)  # 👈 render chart in Streamlit
+    # Get max and min stats
+    max_day = daily_counts.loc[daily_counts['frequency'].idxmax()]
+    min_day = daily_counts.loc[daily_counts['frequency'].idxmin()]
+
+    # Main chart
+    base_chart = alt.Chart(daily_counts).mark_line(point=True).encode(
+        x=alt.X('created_date:T', title='Date'),
+        y=alt.Y('frequency:Q', title='Mentions', scale=alt.Scale(domainMin=0)),
+        tooltip=['created_date:T', 'frequency']
+    ).configure_view(
+        fill='black',
+        stroke=None
+    ).configure_axis(
+        labelFontSize=12,
+        titleFontSize=14,
+        labelColor='white',
+        titleColor='white'
+    ).configure_title(
+        fontSize=18,
+        anchor='start',
+        font='Helvetica',
+        color='white'
+    ).configure_legend(
+        labelColor='white',
+        titleColor='white'
+    ).interactive()
+
+    # Highlight max point
+    highlight = alt.Chart(pd.DataFrame([max_day])).mark_point(
+        color='red', size=100
+    ).encode(
+        x='created_date:T',
+        y='frequency:Q'
+    )
+
+    # Combine and show chart
+    combined_chart = base_chart + highlight
+    st.altair_chart(combined_chart, use_container_width=True)
+
+    # Display insights
+    st.metric(label="📌 Most Active Day", value=max_day['created_date'].date(), delta=f"{max_day['frequency']} mentions")
+    st.markdown(f"🔻 **Lowest Mentions:** {min_day['frequency']} on {min_day['created_date'].date()}")
 
 with tab2:
     st.subheader("Visual Word Cloud of Slang")
