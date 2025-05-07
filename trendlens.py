@@ -429,22 +429,31 @@ with tab1:
     st.markdown(f"🔻 **Lowest Mentions:** {min_day['frequency']} on {min_day['created_date'].strftime('%b %d, %Y')}")
 
 with tab2:
-    st.subheader("Visual Word Cloud of Slang")
+    st.subheader("☁️ Visual Word Cloud of Slang")
     st.markdown("**📈 Summary:**")
     st.markdown(
-        "The word cloud highlights the most frequently mentioned slang terms. "
-        "Larger words represent more popular or commonly used expressions.")
+        "The word cloud below highlights the most frequently mentioned slang terms scraped from Reddit. "
+        "The larger the word, the more often it appeared. Use it to spot viral expressions at a glance."
+    )
+
+    # Prepare word frequencies
     df_wc = df.groupby('term')['frequency'].sum().reset_index()
     df_wc = df_wc[df_wc['frequency'] >= min_freq].sort_values(by='frequency', ascending=False).head(top_n)
 
-    word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
+    if df_wc.empty:
+        st.warning("No terms met the selected frequency threshold. Try lowering the minimum frequency.")
+    else:
+        word_freq = dict(zip(df_wc['term'], df_wc['frequency']))
 
-    wordcloud = WordCloud(
-        width=800, height=400, background_color='black',
-        colormap='Pastel1', prefer_horizontal=0.9
-    ).generate_from_frequencies(word_freq)
+        wordcloud = WordCloud(
+            width=800,
+            height=400,
+            background_color='black',
+            colormap='Pastel1',
+            prefer_horizontal=0.9
+        ).generate_from_frequencies(word_freq)
 
-    st.image(wordcloud.to_array(), use_container_width=True, channels="RGB", output_format="PNG")
+        st.image(wordcloud.to_array(), use_container_width=True)
 
 with tab3:
     # Bar chart
