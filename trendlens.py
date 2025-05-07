@@ -464,7 +464,9 @@ with tab4:
 with tab5:
   # Existing dropdown for filtered slang
   st.subheader("Slang Definitions + Urban Dictionary")
-  selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
+  #selected_term = st.selectbox("Select a slang term to see its meaning:", filtered_df['term'])
+  all_terms = sorted(df['term'].unique())
+  selected_term = st.selectbox("Select a slang term to see its meaning:", all_terms)
   def_row = df[df['term'] == selected_term]
 
   if not def_row.empty:
