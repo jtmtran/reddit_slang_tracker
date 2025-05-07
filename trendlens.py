@@ -395,11 +395,11 @@ with tab1:
 
     # Add label above the red point
     text_label = alt.Chart(highlight_df).mark_text(
-        align='left', dx=5, dy=-10, color='white'
+        align='left', dx=5, dy=-10, color='white', fontSize=14
     ).encode(
         x='created_date:T',
         y='frequency:Q',
-        text=alt.value(f"{max_day['frequency']}")
+        text='frequency:Q'  # ← Use column name, not alt.value()
     )
 
     # Combine and show chart
