@@ -341,6 +341,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 ])
 
 import altair as alt
+
 with tab1:
     st.subheader("Trending Slang Over Time")
     st.markdown("**📈 Summary:**")
@@ -380,20 +381,39 @@ with tab1:
     ).interactive()
 
     # Highlight max point
-    highlight = alt.Chart(pd.DataFrame([max_day])).mark_point(
+    highlight_df = pd.DataFrame({
+        "created_date": [max_day["created_date"]],
+        "frequency": [max_day["frequency"]]
+    })
+
+    highlight = alt.Chart(highlight_df).mark_point(
         color='red', size=100
     ).encode(
         x='created_date:T',
         y='frequency:Q'
     )
 
+    # Add label above the red point
+    text_label = alt.Chart(highlight_df).mark_text(
+        align='left', dx=5, dy=-10, color='white'
+    ).encode(
+        x='created_date:T',
+        y='frequency:Q',
+        text=alt.value(f"{max_day['frequency']}")
+    )
+
     # Combine and show chart
-    combined_chart = base_chart + highlight
+    combined_chart = base_chart + highlight + text_label
     st.altair_chart(combined_chart, use_container_width=True)
 
     # Display insights
-    st.metric(label="📌 Most Active Day", value=max_day['created_date'].date(), delta=f"{max_day['frequency']} mentions")
-    st.markdown(f"🔻 **Lowest Mentions:** {min_day['frequency']} on {min_day['created_date'].date()}")
+    st.metric(
+        label="📌 Most Active Day",
+        value=max_day['created_date'].strftime("%b %d, %Y"),
+        delta=f"{max_day['frequency']} mentions"
+    )
+
+    st.markdown(f"🔻 **Lowest Mentions:** {min_day['frequency']} on {min_day['created_date'].strftime('%b %d, %Y')}")
 
 with tab2:
     st.subheader("Visual Word Cloud of Slang")
