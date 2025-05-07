@@ -283,13 +283,14 @@ from wordcloud import WordCloud
 
 # Load default dataset
 df = pd.read_csv("https://raw.githubusercontent.com/jtmtran/reddit_slang_tracker/0872c84560999eff0b43a2fbae4b0f51e43cf92a/slang_terms.csv")
-st.markdown(
-    "<a href='https://github.com/jtmtran/reddit_trending_realtime' target='_blank'>"
-    "<img style='position: absolute; top: 0; right: 0; border: 0;' "
-    "src='https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=149%2C149' "
-    "</a>",
-    unsafe_allow_html=True
-)
+#st.markdown(
+#    "<a href='https://github.com/jtmtran/reddit_trending_realtime' target='_blank'>"
+#    "<img style='position: absolute; top: 0; right: 0; border: 0;' "
+#    "src='https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=149%2C149' "
+#    "alt='Fork me on GitHub'>"
+#    "</a>",
+#    unsafe_allow_html=True
+#)
 
 # Filter settings
 st.sidebar.title("⚙️ Controls")
